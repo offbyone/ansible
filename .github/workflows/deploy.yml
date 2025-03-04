@@ -1,0 +1,20 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: sudo apt update && sudo apt install -y ansible
+
+      - name: Run deployment
+        run: ansible-playbook -i 'localhost,' scripts/deploy.yml -e "tag=${{ github.ref_name }}"

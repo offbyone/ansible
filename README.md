@@ -23,3 +23,7 @@ tags:
 The plugin supports a pattern like the AWS EC2 plugin, in that you can use the template engine in Ansible to configure it. This allows you to set it up without encoding your secrets in your inventory.
 
 
+## Releases 
+
+Releases will use calver. Deprecations will only take place on year boundaries
+

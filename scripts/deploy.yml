@@ -1,0 +1,38 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    # This should be set via the command line at runtime.
+    tag: ""
+    galaxy_token: "{{ lookup('env', 'ANSIBLE_GALAXY_TOKEN') }}"
+
+  pre_tasks:
+    - name: Ensure the ~/.ansible directory exists.
+      file:
+        path: ~/.ansible
+        state: directory
+
+    - name: Write the Galaxy token to ~/.ansible/galaxy_token (if provided).
+      copy:
+        content: |
+          token: {{ galaxy_token }}
+        dest: ~/.ansible/galaxy_token
+      when: galaxy_token != ""
+
+  tasks:
+    - name: Template out the galaxy.yml file.
+      template:
+        src: templates/galaxy.yml.j2
+        dest: ../galaxy.yml
+
+    - name: Build the collection.
+      command: >
+        ansible-galaxy collection build
+        chdir=../
+    - name: Publish the collection.
+      command: >
+        ansible-galaxy collection publish ./offbyone-ansible-plugins-{{ tag }}.tar.gz
+        chdir=../
+      when: galaxy_token != ""
