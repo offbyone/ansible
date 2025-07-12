@@ -3,7 +3,48 @@
 [![Ansible Collection Test](https://github.com/offby1/ansible/actions/workflows/ansible-test.yml/badge.svg)](https://github.com/offby1/ansible/actions/workflows/ansible-test.yml)
 [![Publish to Ansible Galaxy](https://github.com/offby1/ansible/actions/workflows/ansible-publish.yml/badge.svg)](https://github.com/offby1/ansible/actions/workflows/ansible-publish.yml)
 
-## CI/CD
+## Developer Guide
+
+### Prerequisites
+
+- [Just](https://github.com/casey/just) - Command runner
+- Python 3.9+
+- Ansible
+
+### Common Tasks
+
+This repository uses a `justfile` to simplify common development tasks. To see all available commands:
+
+```bash
+just
+```
+
+Common commands:
+
+```bash
+# Install development dependencies
+just setup
+
+# Run linting
+just lint
+
+# Run sanity tests
+just sanity
+
+# Run all tests
+just test
+
+# Build the collection
+just build
+
+# Install the collection locally
+just install
+
+# Clean build artifacts
+just clean
+```
+
+### CI/CD
 
 This repository is configured with GitHub Actions workflows for:
 - Running tests on pull requests to validate changes
