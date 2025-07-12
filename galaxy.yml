@@ -42,6 +42,9 @@ tags: ["tailscale", "homelab", "networking", "infrastructure"]
 # range specifiers can be set and are separated by ','
 dependencies: {}
 
+# Python dependencies required for this collection
+python_requires: '>=3.8'
+
 # The URL of the originating SCM repository
 repository: https://github.com/offby1/ansible
 
