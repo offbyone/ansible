@@ -7,6 +7,7 @@ default:
 # Install development dependencies
 setup:
     mise install
+    uv venv
     uv pip install -r requirements.txt
     uv pip install ${PIP_TOOLS:-ansible-lint yamllint}
 
