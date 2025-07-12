@@ -28,7 +28,9 @@ jobs:
         uses: astral-sh/setup-uv@f94ec6bedd8674c4426838e6b50417d36b6ab231 # v5.3.1
 
       - name: Install dependencies
-        run: just setup
+        run: |
+          just setup
+          echo "$(pwd)/.venv/bin:$PATH" >> "$GITHUB_PATH"
 
       - name: Run linting
         run: just lint
