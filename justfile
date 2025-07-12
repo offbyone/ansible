@@ -53,3 +53,6 @@ release: validate-metadata
 # Check if the release would work without actually releasing
 release-check: validate-metadata
     ansible-galaxy collection publish --api-key ${ANSIBLE_GALAXY_API_KEY} $(ls -1 offbyone-ansible-*.tar.gz | sort -V | tail -n 1) --dry-run
+
+pin-actions:
+    mise exec ubi:suzuki-shunsuke/pinact -- pinact run
