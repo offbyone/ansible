@@ -1,0 +1,38 @@
+name: Publish to Ansible Galaxy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Deploy to Ansible Galaxy
+    # Only run on main branch push, not on PR merges
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible
+
+      - name: Install collection requirements
+        run: |
+          pip install -r requirements.txt
+          pip install authlib
+
+      - name: Build and publish to Ansible Galaxy
+        uses: artis3n/ansible_galaxy_collection@v2
+        with:
+          api_key: ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
+          collection_dir: '.'
