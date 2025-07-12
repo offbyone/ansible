@@ -1,25 +1,20 @@
-import asyncio
-import json
-import os
-from typing import Any, TypedDict
+# Copyright (c) 2023, OffByOne Ansible Collection contributors
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-import click
-import httpx
-from ansible.errors import AnsibleError
-from ansible.module_utils.common.text.converters import json
-from ansible.plugins.inventory import BaseInventoryPlugin
-from ansible.template import Templar
-from ansible.utils.display import Display, subprocess
-from authlib.integrations.httpx_client import AsyncOAuth2Client as OAuth2
+from __future__ import absolute_import, division, print_function
 
-display = Display()
+__metaclass__ = type
 
 DOCUMENTATION = """
     name: tailscale
-    plugin_type: inventory
     short_description: Tailscale dynamic inventory source
     description:
         - This inventory plugin allows the use of Tailscale as a dynamic inventory source.
+    requirements:
+        - python >= 3.8
+        - httpx
+        - authlib
+        - click
     options:
         client_id:
             description: OAuth2 Client ID for Tailscale
@@ -29,7 +24,6 @@ DOCUMENTATION = """
             description: OAuth2 Client Secret for Tailscale
             required: True
             type: string
-            no_log: True
         tailnet:
             description: The tailnet to use
             type: str
@@ -39,9 +33,78 @@ DOCUMENTATION = """
         tags:
             description: List of tags to filter devices by
             type: list
+            elements: str
             required: False
             default: []
 """
+
+EXAMPLES = """
+# Example configuration using a tailscale.yml file:
+# plugin: offbyone.ansible.tailscale
+# client_id: your_tailscale_oauth_client_id
+# client_secret: your_tailscale_oauth_client_secret
+# tailnet: your_tailnet_name
+# tags: ["tag:web", "tag:db"]
+
+# Example command line usage:
+# ansible-inventory -i tailscale.yml --list
+"""
+
+RETURN = """
+# Default inventory attributes
+ansible_host:
+    description: The Tailscale IP address of the device
+    returned: always
+    type: str
+    sample: "100.100.100.100"
+"""
+
+import asyncio
+import json
+import os
+import sys
+from typing import Any
+
+from ansible.errors import AnsibleError
+from ansible.plugins.inventory import BaseInventoryPlugin
+from ansible.template import Templar
+from ansible.utils.display import Display
+
+display = Display()
+
+HAS_REQUIRED_LIBS = True
+MISSING_LIBS = []
+
+try:
+    import click
+except ImportError:
+    HAS_REQUIRED_LIBS = False
+    MISSING_LIBS.append("click")
+
+try:
+    import httpx
+except ImportError:
+    HAS_REQUIRED_LIBS = False
+    MISSING_LIBS.append("httpx")
+
+try:
+    from authlib.integrations.httpx_client import AsyncOAuth2Client as OAuth2
+except ImportError:
+    HAS_REQUIRED_LIBS = False
+    MISSING_LIBS.append("authlib")
+
+# Handle typing for Python < 3.9
+if sys.version_info < (3, 9):
+    try:
+        from typing import TypedDict
+    except ImportError:
+        try:
+            from typing_extensions import TypedDict
+        except ImportError:
+            HAS_REQUIRED_LIBS = False
+            MISSING_LIBS.append("typing_extensions")
+else:
+    from typing import TypedDict
 
 
 class TailscaleOAuth2API:
@@ -133,6 +196,15 @@ class InventoryModule(BaseInventoryPlugin):
         super().parse(inventory, loader, path, cache=True)
         self.config = self._read_config_data(path)
 
+        if not HAS_REQUIRED_LIBS:
+            raise AnsibleError(
+                "The tailscale inventory plugin requires these Python libraries: {}. "
+                "Please install them using `pip install {}` or add them to your "
+                "requirements.txt file.".format(
+                    ", ".join(MISSING_LIBS), " ".join(MISSING_LIBS)
+                )
+            )
+
         client_id = self.get_option("client_id")
         client_secret = self.get_option("client_secret")
         tailnet = self.get_option("tailnet")
@@ -144,8 +216,11 @@ class InventoryModule(BaseInventoryPlugin):
 
             return devices
 
-        loop = asyncio.get_event_loop()
-        devices = loop.run_until_complete(aparse())
+        try:
+            loop = asyncio.get_event_loop()
+            devices = loop.run_until_complete(aparse())
+        except Exception as e:
+            raise AnsibleError(f"Error connecting to Tailscale API: {str(e)}")
 
         for device in devices["devices"]:
             device_tags = device.get("tags", [])
@@ -171,60 +246,73 @@ TailnetConfig = TypedDict(
 )
 
 
-@click.group()
-@click.option(
-    "--client-id",
-    required=True,
-    help="OAuth2 Client ID for Tailscale",
-    envvar="TAILSCALE_CLIENT_ID",
-    type=str,
-)
-@click.option(
-    "--client-secret",
-    required=True,
-    help="OAuth2 Client Secret for Tailscale",
-    envvar="TAILSCALE_CLIENT_SECRET",
-    type=str,
-)
-@click.option(
-    "--tailnet",
-    required=True,
-    help="The tailnet to use",
-    envvar="TAILNET_NAME",
-    type=str,
-)
-@click.pass_context
-def main(ctx: click.Context, client_id: str, client_secret: str, tailnet: str):
-    ctx.obj = {
-        "client_id": client_id,
-        "client_secret": client_secret,
-        "tailnet": tailnet,
-    }
+# don't define any functions if click is missing
+if "click" not in MISSING_LIBS:
+    import click
 
+    @click.group()
+    @click.option(
+        "--client-id",
+        required=True,
+        help="OAuth2 Client ID for Tailscale",
+        envvar="TAILSCALE_CLIENT_ID",
+        type=str,
+    )
+    @click.option(
+        "--client-secret",
+        required=True,
+        help="OAuth2 Client Secret for Tailscale",
+        envvar="TAILSCALE_CLIENT_SECRET",
+        type=str,
+    )
+    @click.option(
+        "--tailnet",
+        required=True,
+        help="The tailnet to use",
+        envvar="TAILNET_NAME",
+        type=str,
+    )
+    @click.pass_context
+    def main(ctx: click.Context, client_id: str, client_secret: str, tailnet: str):
+        ctx.obj = {
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "tailnet": tailnet,
+        }
 
-@main.command()
-@click.pass_obj
-@click.option("--path", type=str, default="inventory/tailscale.yaml")
-@click.argument("tags", nargs=-1)
-def inventory(obj: TailnetConfig, path: str, tags: list[str]):
-    inv = InventoryModule()
-    inv.parse(None, None, path)
+    @main.command()
+    @click.pass_obj
+    @click.option("--path", type=str, default="inventory/tailscale.yaml")
+    @click.argument("tags", nargs=-1)
+    def inventory(obj: TailnetConfig, path: str, tags: list[str]):
+        inv = InventoryModule()
+        inv.parse(None, None, path)
 
+    @main.command()
+    @click.pass_obj
+    def nodes(obj: TailnetConfig):
+        async def inner_main():
+            tailscale_api = await TailscaleOAuth2API.setup(
+                obj["client_id"],
+                obj["client_secret"],
+            )
+            devices = await tailscale_api.get_devices(obj["tailnet"])
 
-@main.command()
-@click.pass_obj
-def nodes(obj: TailnetConfig):
-    async def inner_main():
-        tailscale_api = await TailscaleOAuth2API.setup(
-            obj["client_id"],
-            obj["client_secret"],
+            for device in devices["devices"]:
+                print(f"Device: {device['hostname']}, IP: {device['addresses'][0]}")
+
+        asyncio.run(inner_main())
+
+else:
+
+    def main():
+        raise AnsibleError(
+            "The tailscale inventory plugin requires these Python libraries: {}. "
+            "Please install them using `pip install {}` or add them to your "
+            "requirements.txt file.".format(
+                ", ".join(MISSING_LIBS), " ".join(MISSING_LIBS)
+            )
         )
-        devices = await tailscale_api.get_devices(obj["tailnet"])
-
-        for device in devices["devices"]:
-            print(f"Device: {device['hostname']}, IP: {device['addresses'][0]}")
-
-    asyncio.run(inner_main())
 
 
 if __name__ == "__main__":

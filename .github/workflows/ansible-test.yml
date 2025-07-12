@@ -2,31 +2,35 @@ name: Ansible Collection Test
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Install mise
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@bfb9fa0b029db830a8c570757cee683df207a6c5 # v2.4.0
 
       - name: Install just
-        uses: extractions/setup-just@v1
-        with:
-          just-version: '1.13.0'
+        uses: extractions/setup-just@dd310ad5a97d8e7b41793f8ef055398d51ad4de6 # v2.0.0
 
       - name: Install uv
-        run: pip install uv
+        uses: astral-sh/setup-uv@f94ec6bedd8674c4426838e6b50417d36b6ab231 # v5.3.1
 
       - name: Install dependencies
-        run: just setup
+        run: |
+          just setup
+          echo "$(pwd)/.venv/bin:$PATH" >> "$GITHUB_PATH"
 
       - name: Run linting
         run: just lint
