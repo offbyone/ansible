@@ -2,6 +2,8 @@
 exclude_paths:
   - .github/
   - .git/
+  - .jj/
+  - .venv/
 parseable: true
 use_default_rules: true
 verbosity: 1
