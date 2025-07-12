@@ -1,0 +1,12 @@
+[tools]
+python = "3.11"
+ansible = "latest"
+
+[env]
+PIP_TOOLS = "ansible-lint yamllint"
+
+[tasks]
+lint = "just lint"
+test = "just test"
+build = "just build"
+release = "just release-check"

@@ -8,8 +8,8 @@
 ### Prerequisites
 
 - [Just](https://github.com/casey/just) - Command runner
-- Python 3.9+
-- Ansible
+- [mise](https://mise.jdx.dev/) - Tool version manager (for Python, Ansible)
+- [uv](https://github.com/astral-sh/uv) - Fast Python package installer
 
 ### Common Tasks
 
