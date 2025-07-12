@@ -10,6 +10,8 @@ jobs:
     # Only run on main branch push, not on PR merges
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Check out code
         uses: actions/checkout@v4
