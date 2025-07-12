@@ -2,9 +2,9 @@ name: Ansible Collection Test
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
@@ -12,18 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install mise
         uses: jdx/mise-action@v2
 
       - name: Install just
-        uses: extractions/setup-just@v1
-        with:
-          just-version: '1.13.0'
+        uses: extractions/setup-just@dd310ad5a97d8e7b41793f8ef055398d51ad4de6 # v2.0.0
 
       - name: Install uv
-        run: pip install uv
+        uses: astral-sh/setup-uv@f94ec6bedd8674c4426838e6b50417d36b6ab231 # v5.3.1
 
       - name: Install dependencies
         run: just setup

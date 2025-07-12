@@ -11,3 +11,5 @@ rules:
 ignore: |
   .github/
   .git/
+  .venv/
+  .jj/
