@@ -8,7 +8,7 @@ version: 3
 ignore_actions:
   # - name: slsa-framework/slsa-github-generator/\.github/workflows/generator_generic_slsa3\.yml
   #   ref: v\d+\.\d+\.\d+
-  - name: actions/.*
-    ref: v\d+
   # - name: suzuki-shunsuke/.*
   #   ref: release-.*
+  - name: actions/.*
+    ref: v\d+
