@@ -1,0 +1,31 @@
+---
+- name: Install ubi binary installer
+  ansible.builtin.shell: |
+    curl --silent --location \
+        https://raw.githubusercontent.com/houseabsolute/ubi/master/bootstrap/bootstrap-ubi.sh |
+        TARGET="{{ ubi_install_dir }}" TAG="{{ ubi_version }}" sh
+  args:
+    creates: "{{ ubi_install_dir }}/ubi"
+  become: true
+  environment:
+    GITHUB_TOKEN: "{{ ubi_github_token | default(omit) }}"
+  when: ansible_system != "Win32NT"
+  tags:
+    - ubi
+    - skip_ansible_lint
+
+- name: Verify ubi installation
+  ansible.builtin.command: "{{ ubi_install_dir }}/ubi --version"
+  register: ubi_version_output
+  changed_when: false
+  check_mode: false
+  become: true
+  tags:
+    - ubi
+
+- name: Display ubi version
+  ansible.builtin.debug:
+    msg: "{{ ubi_version_output.stdout }}"
+  check_mode: false
+  tags:
+    - ubi

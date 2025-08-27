@@ -1,0 +1,9 @@
+---
+# requirements.yml
+# Use this file to install the collection with:
+# ansible-galaxy install -r requirements.yml
+
+collections:
+  - name: offby1.ansible
+    version: ">=1.0.0"
+    source: https://galaxy.ansible.com

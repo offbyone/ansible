@@ -1,0 +1,17 @@
+---
+# Directory where ubi will be installed
+# For non-root users, defaults to $HOME/bin
+# For root users, defaults to /usr/local/bin
+ubi_install_dir: "/usr/local/bin"
+
+# Specific version of ubi to install (optional)
+# If not specified, the latest release will be installed
+ubi_version: ""
+
+# GitHub token for API access (optional)
+# Useful for private repos or to avoid rate limits in CI
+ubi_github_token: ""
+
+# Git SHA of the bootstrap script version. To use the very latest
+# replace this with `master`
+ubi_bootstrap_script_version: "66833d77a45d6d06543f7a3126baabd860467804"

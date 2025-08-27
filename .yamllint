@@ -8,6 +8,8 @@ rules:
     level: warning
   truthy:
     allowed-values: ['true', 'false', 'yes', 'no']
+  comments:
+    min-spaces-from-content: 1  # Allow 1 space before comments (prettier default)
 
 ignore: |
   .github/
