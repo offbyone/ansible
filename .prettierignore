@@ -1,0 +1,7 @@
+# Ignore patterns for Prettier
+.github/
+.git/
+.venv/
+.jj/
+*.tar.gz
+offby1-ansible-*.tar.gz

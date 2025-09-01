@@ -1,0 +1,21 @@
+---
+printWidth: 160
+tabWidth: 2
+useTabs: false
+singleQuote: true
+bracketSpacing: true
+bracketSameLine: false
+
+# YAML-specific settings to match yamllint
+overrides:
+  - files: "*.{yml,yaml}"
+    options:
+      printWidth: 160
+      tabWidth: 2
+      useTabs: false
+      singleQuote: false
+      bracketSpacing: true
+      proseWrap: preserve
+      # Disable formatting to preserve yamllint-compliant comment spacing
+      requirePragma: false
+      insertPragma: false

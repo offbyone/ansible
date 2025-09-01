@@ -1,0 +1,68 @@
+---
+# Example playbook for using the offby1.ansible collection
+# This playbook demonstrates how to:
+# 1. Install UBI using the role
+# 2. Use the module to install binaries
+
+- name: UBI Collection Demo
+  hosts: localhost
+  gather_facts: false
+  become: false
+
+  vars:
+    # Set this to your GitHub token if needed to avoid rate limits
+    github_token: "{{ lookup('env', 'GITHUB_TOKEN') | default('') }}"
+
+    # Where to install UBI and binaries
+    install_directory: "/usr/local/bin"
+
+  tasks:
+    - name: Install UBI using the role
+      ansible.builtin.include_role:
+        name: offby1.ansible.ubi
+      vars:
+        ubi_install_dir: "{{ install_directory }}"
+        ubi_github_token: "{{ github_token }}"
+
+    - name: Install development tools using the ubi module
+      offby1.ansible.ubi:
+        binaries:
+          - BurntSushi/ripgrep # Fast grep replacement
+          - sharkdp/fd # Fast find replacement
+          - sharkdp/bat # Cat with syntax highlighting
+          - name: cli/cli # GitHub CLI
+            version: v2.40.1 # Specific version
+        state: present
+        install_dir: "{{ install_directory }}"
+        github_token: "{{ github_token if github_token else omit }}"
+      register: install_results
+
+    - name: Show installation results
+      ansible.builtin.debug:
+        var: install_results
+
+    - name: Verify installed binaries
+      ansible.builtin.command: "{{ install_directory }}/{{ item }} --version"
+      loop:
+        - rg
+        - fd
+        - bat
+        - gh
+      register: version_checks
+      failed_when: false
+      tags:
+        - skip_ansible_lint
+
+    - name: Show binary versions
+      ansible.builtin.debug:
+        msg: "{{ item.item }}: {{ item.stdout | default('Not found or failed') }}"
+      loop: "{{ version_checks.results }}"
+
+    # Example of removing binaries
+    - name: Remove a binary (example)
+      offby1.ansible.ubi:
+        binaries:
+          - sharkdp/bat
+        state: absent
+        install_dir: "{{ install_directory }}"
+      when: false # Set to true to actually remove

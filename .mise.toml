@@ -1,9 +1,8 @@
 [tools]
-python = "3.11"
+python = "3.13"
 ansible = "latest"
-
-[env]
-PIP_TOOLS = "ansible-lint yamllint"
+"pipx:ansible-lint" = "latest"
+"pipx:yamllint" = "latest"
 
 [tasks]
 lint = "just lint"

@@ -1,4 +1,4 @@
-# Copyright (c) 2023, OffByOne Ansible Collection contributors
+# Copyright (c) 2023, Offby1 Ansible Collection contributors
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -40,7 +40,7 @@ DOCUMENTATION = """
 
 EXAMPLES = """
 # Example configuration using a tailscale.yml file:
-# plugin: offbyone.ansible.tailscale
+# plugin: offby1.ansible.tailscale
 # client_id: your_tailscale_oauth_client_id
 # client_secret: your_tailscale_oauth_client_secret
 # tailnet: your_tailnet_name

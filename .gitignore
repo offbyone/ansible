@@ -1,3 +1,6 @@
 **/.claude/settings.local.json
 dist/
 .ansible/
+# allow mise.toml to be retained
+!.mise.toml
+/dist/
