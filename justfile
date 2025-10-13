@@ -14,9 +14,14 @@ setup:
 test: lint sanity
 
 # Run linting checks
-lint:
-    yamllint .
-    ansible-lint
+[parallel]
+lint: yamllint ansible-lint
+
+yamllint:
+    uv tool run yamllint .
+
+ansible-lint:
+    uv tool run ansible-lint
 
 # Run sanity checks
 sanity:
