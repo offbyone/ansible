@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    environment: galaxy-production
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -36,7 +37,7 @@ jobs:
       - name: Build collection
         run: just build
 
-      # - name: Publish to Ansible Galaxy
-      #   env:
-      #     ANSIBLE_GALAXY_API_KEY: ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
-      #   run: just release
+      - name: Publish to Ansible Galaxy
+        env:
+          ANSIBLE_GALAXY_API_KEY: ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
+        run: just release
