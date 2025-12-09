@@ -217,8 +217,7 @@ class InventoryModule(BaseInventoryPlugin):
             return devices
 
         try:
-            loop = asyncio.get_event_loop()
-            devices = loop.run_until_complete(aparse())
+            devices = asyncio.run(aparse())
         except Exception as e:
             raise AnsibleError(f"Error connecting to Tailscale API: {str(e)}")
 

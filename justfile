@@ -33,7 +33,8 @@ sanity:
     rsync -a \
         --exclude .git --exclude .venv --exclude .jj --exclude .ansible \
         . "$tempdir/ansible_collections/offby1/ansible/"
-    cd "$tempdir/ansible_collections/offby1/ansible" && ansible-test sanity --docker -v
+    cd "$tempdir/ansible_collections/offby1/ansible" && \
+        uv tool run --from ansible-core ansible-test sanity --docker -v
 
 # Build the collection
 build:
