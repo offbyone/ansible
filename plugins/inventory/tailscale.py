@@ -233,7 +233,10 @@ class InventoryModule(BaseInventoryPlugin):
 
                 for tag in device_tags:
                     groups = self.inventory.get_groups_dict()
-                    group_name = f"tag_{tag[4:]}"
+                    # Sanitize group name: replace invalid characters with underscores
+                    # Ansible group names can only contain alphanumeric characters and underscores
+                    tag_name = tag[4:]  # Remove 'tag:' prefix
+                    group_name = f"tag_{tag_name}".replace("-", "_").replace(":", "_")
                     if group_name not in groups:
                         self.inventory.add_group(group_name)
                     self.inventory.add_child(group_name, hostname)
